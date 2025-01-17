@@ -4,6 +4,7 @@ const userRoutes = require("./routes/userRoutes");
 const groundRoutes = require("./routes/groundRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
+const offerRoutes = require("./routes/offerRoutes");
 const app = express();
 const bodyParser = require("body-parser");
 const gloableErrorHandler = require("./controller/errorController");
@@ -41,6 +42,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/ground",groundRoutes);
 app.use("/api/v1/booking",bookingRoutes);
 app.use("/api/v1/banner",bannerRoutes);
+app.use("/api/v1/offer",offerRoutes);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on this server!!`, 404));

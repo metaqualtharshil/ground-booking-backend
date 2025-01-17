@@ -9,6 +9,7 @@ const offerSchema = mongoose.Schema(
     description: String, 
     discountType: {
       type: String,
+      default:"Percentage",
       enum: ["Flat", "Percentage"],
     },
     discountValue: {
