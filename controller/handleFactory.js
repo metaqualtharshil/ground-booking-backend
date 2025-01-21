@@ -10,7 +10,7 @@ exports.deleteOne = (Model) =>
     }
     res.status(204).json({
       status: "success",
-      data: null
+      data: null,
     });
   });
 
@@ -31,6 +31,15 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
+    // Collect Cloudinary image URLs
+    if (req.files.length > 0 && req.files) {
+      const photos = req.files.map((file) => file.path);
+      req.body.photos = photos;
+      req.body.location = JSON.parse(req.body.location);
+      req.body.features = JSON.parse(req.body.features);
+      req.body.availableSlots = JSON.parse(req.body.availableSlots);
+    }
+
     const newDoc = await Model.create(req.body);
     res.status(201).json({
       status: "success",

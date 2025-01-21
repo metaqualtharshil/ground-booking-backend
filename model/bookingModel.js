@@ -21,17 +21,34 @@ const bookingSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum:["Pending", "Confirmed", "Cancelled"],
-      default: "Pending"
+      enum: ["Pending", "Confirmed", "Cancelled"],
+      default: "Pending",
     },
-    totalAmount:{
-        type: Number,
-        required: [true,'TotalAmount is required.']
+    totalAmount: {
+      type: Number,
+      required: [true, "TotalAmount is required."],
     },
-    paymentId:{
+    discountAmount: {
+      type: Number,
+      default:0
+    },
+    usedReward: {
+      type:Boolean,
+      default: false
+    }, // If referral or reward credits were applied
+    appliedOffer: {
+      offerId: {
         type: mongoose.Schema.ObjectId,
-        ref: 'Payment'
-    }
+        ref: "Offer",
+      }, // Reference to Offers collection
+      offerTitle: String, // Title of the offer applied
+      discountValue: Number, // Discount value from the offer
+    },
+    paymentId: {
+      type: mongoose.Schema.ObjectId,
+      ref: "Payment",
+    },
+    isFavorite: Boolean, // If the user marked this ground as a favorite
   },
   {
     timestamps: true,

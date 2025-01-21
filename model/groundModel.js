@@ -25,17 +25,13 @@ const groundSchema = mongoose.Schema(
         endTime: { type: String, required: true },
       },
     ],
-
+    photos:[String],
     rating: {
       stars: Number, // e.g., 1 to 5 stars
       review: String, // Optional text review from the user
       ratedAt: Date // When the rating was submitted
     },
-    appliedOffer: {
-        offerId: mongoose.Schema.ObjectId, // Reference to Offers collection
-        offerTitle: String, // Title of the offer applied
-        discountValue: Number // Discount value from the offer
-    },
+   
   },
   {
     timestamps: true,
