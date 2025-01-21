@@ -1,14 +1,13 @@
 const catchAsync = require("../utils/catchAsync");
 const factory = require("../controller/handleFactory");
 const Ground = require("../model/groundModel");
-const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 
 // Configure Cloudinary
 cloudinary.config({
-  cloud_name: "dz4kbwmxk",
-  api_key: "635999668677418",
-  api_secret: "3H_KbzNGm65xkH8WySwZ4t5qIgU",
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
 });
 
 exports.getGrounds = factory.getAll(Ground);

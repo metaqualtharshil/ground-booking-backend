@@ -1,10 +1,37 @@
 const mongoose = require("mongoose");
 
+const slotSchema = new mongoose.Schema({
+  date: { type: Date, required: true }, // Date of the slot
+  startTime: { type: String, required: true }, // Start time of the slot
+  endTime: { type: String, required: true }, // End time of the slot
+  status: {
+    type: String,
+    enum: ["available", "booked"],
+    default: "available", // Default status is "available"
+  },
+  bookedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User", // Reference to the user who booked the slot
+    default: null, // Null when the slot is available
+  },
+});
+
+const priceChart = new mongoose.Schema({
+  heading: {
+    type: String,
+    required: [true, "price Chart is required."],
+  },
+  slot: {
+    type: [String],
+    required: [true, "slot is required."],
+  },
+});
+
 const groundSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      unique:true,
+      unique: true,
       required: [true, "Name is required."],
     },
     location: {
@@ -18,20 +45,29 @@ const groundSchema = mongoose.Schema(
     features: { type: [String], default: [] }, // Default to an empty array
     capacity: { type: Number, required: true },
     pricePerHour: { type: Number, default: 600, required: true },
-    availableSlots: [
+    availableTime: {
+      type: String,
+      default: "24 hrs",
+    },
+    availableSport: [
       {
-        date: { type: Date, required: true },
-        startTime: { type: String, required: true },
-        endTime: { type: String, required: true },
+        icon: String,
+        name: String, // cricket, football
+        groundName: { type: [String], default: [] }, // turf 1 , turf 2
+        availableSlots: [slotSchema],
+        priceChart: [priceChart],
       },
     ],
-    photos:[String],
+    totalGround: Number,
+    photos: { type: [String], default: [] },
     rating: {
-      stars: Number, // e.g., 1 to 5 stars
+      stars: { type: Number, default: 0 }, // e.g., 1 to 5 stars
       review: String, // Optional text review from the user
-      ratedAt: Date // When the rating was submitted
+      ratedAt: Date, // When the rating was submitted
     },
-   
+    aboutVenue: {
+      type: String,
+    },
   },
   {
     timestamps: true,

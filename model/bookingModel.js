@@ -16,8 +16,16 @@ const bookingSchema = mongoose.Schema(
       default: Date.now(),
     },
     slot: {
-      startTime: "String", // e.g., "09:00"
-      endTime: "String", // e.g., "10:00"
+      startTime: String, // e.g., "09:00"
+      endTime: String, // e.g., "10:00"
+    },
+    totalDuration: {
+      type: Number, // in minutes
+    },
+    groundDetails: {
+      icon: String,
+      name: String, // cricket, football
+      groundName: String, // turf 1 , turf 2
     },
     status: {
       type: String,
@@ -30,11 +38,11 @@ const bookingSchema = mongoose.Schema(
     },
     discountAmount: {
       type: Number,
-      default:0
+      default: 0,
     },
     usedReward: {
-      type:Boolean,
-      default: false
+      type: Boolean,
+      default: false,
     }, // If referral or reward credits were applied
     appliedOffer: {
       offerId: {
