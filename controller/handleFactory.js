@@ -6,7 +6,7 @@ exports.deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
     if (!doc) {
-      return next(new AppError("No booking found for thid id", 404));
+      return next(new AppError("No booking found for this  id", 404));
     }
     res.status(204).json({
       status: "success",
@@ -21,7 +21,7 @@ exports.updateOne = (Model) =>
       runValidators: true, //if false then model validator not use if we true then use
     });
     if (!doc) {
-      return next(new AppError("No booking found for thid id", 404));
+      return next(new AppError("No booking found for this id", 404));
     }
     res.status(201).json({
       status: "success",
@@ -32,13 +32,13 @@ exports.updateOne = (Model) =>
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
     // Collect Cloudinary image URLs
-    if (req.files.length > 0 && req.files) {
-      const photos = req.files.map((file) => file.path);
-      req.body.photos = photos;
-      req.body.location = JSON.parse(req.body.location);
-      req.body.features = JSON.parse(req.body.features);
-      req.body.availableSlots = JSON.parse(req.body.availableSlots);
-    }
+    // if (req.files.length > 0 && req.files) {
+    //   const photos = req.files.map((file) => file.path);
+    //   req.body.photos = photos;
+    //   req.body.location = JSON.parse(req.body.location);
+    //   req.body.features = JSON.parse(req.body.features);
+    //   req.body.availableSport = JSON.parse(req.body.availableSport);
+    // }
 
     const newDoc = await Model.create(req.body);
     res.status(201).json({
@@ -54,11 +54,11 @@ exports.getOne = (Model, popOption) =>
 
     const doc = await query;
     // const doc=await Model.findById(req.params.id)
-    // // .populate({path:'guides',select:'-__v -passwordChangedAt'})
+    // .populate({path:'guides',select:'-__v -passwordChangedAt'})
     // .populate({path:'reviews'});  // populate thi user collection nui id no reference che aeno object print karave
     // //tour.findOne({_id:req.params.id})
     if (!doc) {
-      return next(new AppError("No Document found for thid id", 404));
+      return next(new AppError("No Document found for this id", 404));
     }
     res.status(200).json({
       status: "success",

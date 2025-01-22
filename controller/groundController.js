@@ -22,21 +22,21 @@ exports.deleteGround = catchAsync(async (req, res) => {
   try {
     const ground = await Ground.findById(req.params.id);
     // 1. Delete photos from Cloudinary (if any)
-    if (ground.photos && ground.photos.length > 0) {
-      for (const photoUrl of ground.photos) {
-        const publicId = `${photoUrl.split("/")[7].split(".")[0]}/${
-          photoUrl.split("/")[8].split(".")[0]
-        }`;
-        const cloudinaryResponse = await cloudinary.uploader.destroy(publicId);
+    // if (ground.photos && ground.photos.length > 0) {
+    //   for (const photoUrl of ground.photos) {
+    //     const publicId = `${photoUrl.split("/")[7].split(".")[0]}/${
+    //       photoUrl.split("/")[8].split(".")[0]
+    //     }`;
+    //     const cloudinaryResponse = await cloudinary.uploader.destroy(publicId);
 
-        console.log("Cloudinary response:", cloudinaryResponse);
+    //     console.log("Cloudinary response:", cloudinaryResponse);
 
-        // Check if Cloudinary returns an error
-        if (cloudinaryResponse.result !== "ok") {
-          throw new Error(`Failed to delete image with public ID: ${publicId}`);
-        }
-      }
-    }
+    //     // Check if Cloudinary returns an error
+    //     if (cloudinaryResponse.result !== "ok") {
+    //       throw new Error(`Failed to delete image with public ID: ${publicId}`);
+    //     }
+    //   }
+    // }
 
     const doc = await Ground.findByIdAndDelete(req.params.id);
     res.status(204).json({

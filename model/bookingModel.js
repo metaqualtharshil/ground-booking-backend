@@ -5,27 +5,53 @@ const bookingSchema = mongoose.Schema(
     groundId: {
       type: mongoose.Schema.ObjectId,
       ref: "Ground",
+      required: true,
     },
     userId: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
+      required: true,
     },
     date: {
       type: Date,
-      unique: true,
+      required: true,
       default: Date.now(),
     },
     slot: {
-      startTime: String, // e.g., "09:00"
-      endTime: String, // e.g., "10:00"
+      slotId:{
+        type: String, 
+        required: true, 
+      },
+      startTime: {
+        type: String, 
+        required: true, 
+      },
+      endTime: {
+        type: String, 
+        required: true,
+      },
     },
     totalDuration: {
-      type: Number, // in minutes
+      type: Number, // Duration in minutes
+      required: true,
+      min: 1, // Duration must be positive
+      validate: {
+        validator: function (value) {
+          return value > 0; // Ensure duration is positive
+        },
+        message: "Total duration must be greater than 0",
+      },
     },
     groundDetails: {
-      icon: String,
-      name: String, // cricket, football
-      groundName: String, // turf 1 , turf 2
+      icon: String, // Icon for the ground type
+      name: {
+        type: String,
+        required: true, // e.g., "Football", "Cricket"
+      },
+      groundName: {
+        type: String,
+        required: true, // e.g., "Turf 1", "Turf 2"
+      },
     },
     status: {
       type: String,
@@ -35,10 +61,12 @@ const bookingSchema = mongoose.Schema(
     totalAmount: {
       type: Number,
       required: [true, "TotalAmount is required."],
+      min: 0,
     },
     discountAmount: {
       type: Number,
       default: 0,
+      min: 0,
     },
     usedReward: {
       type: Boolean,
@@ -50,13 +78,20 @@ const bookingSchema = mongoose.Schema(
         ref: "Offer",
       }, // Reference to Offers collection
       offerTitle: String, // Title of the offer applied
-      discountValue: Number, // Discount value from the offer
+      discountValue: {
+        type: Number, // Discount value from the offer
+        default: 0,
+        min: 0, 
+      },
     },
     paymentId: {
       type: mongoose.Schema.ObjectId,
       ref: "Payment",
     },
-    isFavorite: Boolean, // If the user marked this ground as a favorite
+    isFavorite: {
+      type: Boolean,
+      default: false, // If the user has marked this booking as a favorite
+    },
   },
   {
     timestamps: true,

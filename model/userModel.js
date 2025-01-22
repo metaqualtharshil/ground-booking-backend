@@ -57,6 +57,7 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "India",
     },
+    photo:String,
     referralCode: {
       type: String, // Unique code for each user
       unique: true,

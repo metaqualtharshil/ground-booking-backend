@@ -25,6 +25,10 @@ const priceChart = new mongoose.Schema({
     type: [String],
     required: [true, "slot is required."],
   },
+  price: {
+    type: Number,
+    required: [true, "price is required."],
+  },
 });
 
 const groundSchema = mongoose.Schema(
@@ -58,7 +62,10 @@ const groundSchema = mongoose.Schema(
         priceChart: [priceChart],
       },
     ],
-    totalGround: Number,
+    totalGround: {
+      type:Number,
+      default:1
+    },
     photos: { type: [String], default: [] },
     rating: {
       stars: { type: Number, default: 0 }, // e.g., 1 to 5 stars

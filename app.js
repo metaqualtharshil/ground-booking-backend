@@ -15,7 +15,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(helmet());  //set security HTTP header
 

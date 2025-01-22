@@ -12,4 +12,6 @@ router.route("/:id")
             .patch(authController.protect,bookingController.updateBooking)
             .delete(authController.protect,bookingController.deleteBooking);
 
+router.get("/userBooking/:userId",authController.protect,bookingController.getUserBooking);
+
 module.exports = router;

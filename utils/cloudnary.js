@@ -15,8 +15,9 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'grounds', // Folder name in your Cloudinary account
     format: async () => 'jpeg', // Convert images to JPEG format
+    allowed_formats: ['jpeg', 'png', 'jpg'], // Allowed file formats
     transformation: [
-      { width: 800, height: 600, crop: 'limit' }, // Resize with max width 800px and height 600px
+      { width: 800, height: 800, crop: 'limit' }, // Resize with max width 800px and height 600px
     ],
   },
 });
