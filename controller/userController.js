@@ -37,3 +37,8 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+
+exports.addFavorite = catchAsync(async (req,res,next)=>{
+  
+});

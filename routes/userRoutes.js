@@ -11,6 +11,6 @@ router.post('/updatePassword',authController.protect,authController.updatePasswo
 router.post('/forgetPassword',authController.forgetPassword);
 router.post('/resetPassword/:token',authController.resetPassowrd);
 
-router.patch("/updateMe",authController.protect,upload.single('photo'),userController.updateMe);
+router.patch("/updateMe",authController.protect,userController.updateMe);
 
 module.exports = router;

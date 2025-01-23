@@ -1,3 +1,32 @@
+// const cloudinary = require('cloudinary').v2;
+// const multer = require('multer');
+// const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// // Configure Cloudinary
+// cloudinary.config({
+//   cloud_name: process.env.CLOUD_NAME,
+//   api_key: process.env.API_KEY,
+//   api_secret: process.env.API_SECRET,
+// });
+
+// // Create Cloudinary storage with resizing logic
+// const storage = new CloudinaryStorage({
+//   cloudinary: cloudinary,
+//   params: {
+//     folder: 'grounds', // Folder name in your Cloudinary account
+//     format: async () => 'jpeg', // Convert images to JPEG format
+//     allowed_formats: ['jpeg', 'png', 'jpg'], // Allowed file formats
+//     transformation: [
+//       { width: 800, height: 800, crop: 'limit' }, // Resize with max width 800px and height 600px
+//     ],
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// module.exports = upload;
+
+
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
@@ -9,19 +38,27 @@ cloudinary.config({
   api_secret: process.env.API_SECRET,
 });
 
-// Create Cloudinary storage with resizing logic
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'grounds', // Folder name in your Cloudinary account
-    format: async () => 'jpeg', // Convert images to JPEG format
-    allowed_formats: ['jpeg', 'png', 'jpg'], // Allowed file formats
-    transformation: [
-      { width: 800, height: 800, crop: 'limit' }, // Resize with max width 800px and height 600px
-    ],
-  },
-});
+// Function to create Cloudinary storage dynamically
+const createCloudinaryStorage = (folder, width = 800, height = 800) =>
+  new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+      folder, // Dynamic folder name
+      format: async () => 'jpeg', // Default format
+      allowed_formats: ['jpeg', 'png', 'jpg'], // Allowed formats
+      transformation: [
+        { width, height, crop: 'limit' }, // Resize with dynamic dimensions
+      ],
+    },
+  });
 
-const upload = multer({ storage });
+// Multer setup for dynamic storage
+const getUploader = (folder, width, height) => {
+  const storage = createCloudinaryStorage(folder, width, height);
+  return multer({ storage });
+};
 
-module.exports = upload;
+// Exporting dynamic uploader function
+module.exports = {
+  getUploader,
+};

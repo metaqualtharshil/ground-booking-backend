@@ -5,6 +5,8 @@ const groundRoutes = require("./routes/groundRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
 const offerRoutes = require("./routes/offerRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
+const coachingRoutes = require("./routes/coachingRoutes");
 const app = express();
 const bodyParser = require("body-parser");
 const gloableErrorHandler = require("./controller/errorController");
@@ -15,7 +17,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(helmet());  //set security HTTP header
 
@@ -43,6 +45,8 @@ app.use("/api/v1/ground",groundRoutes);
 app.use("/api/v1/booking",bookingRoutes);
 app.use("/api/v1/banner",bannerRoutes);
 app.use("/api/v1/offer",offerRoutes);
+app.use("/api/v1/payment",paymentRoutes);
+app.use("/api/v1/coaching",coachingRoutes);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on this server!!`, 404));
