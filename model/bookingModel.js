@@ -16,18 +16,19 @@ const bookingSchema = mongoose.Schema(
       type: Date,
       required: true,
       default: Date.now(),
+      unique: false,
     },
     slot: {
-      slotId:{
-        type: String, 
-        required: true, 
+      slotId: {
+        type: String,
+        required: true,
       },
       startTime: {
-        type: String, 
-        required: true, 
+        type: String,
+        required: true,
       },
       endTime: {
-        type: String, 
+        type: String,
         required: true,
       },
     },
@@ -55,8 +56,11 @@ const bookingSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Pending", "Confirmed", "Cancelled"],
+      enum: ["Pending", "Confirmed", "Completed", "Cancelled"],
       default: "Pending",
+    },
+    cancellationReason:{
+      type:String
     },
     totalAmount: {
       type: Number,
@@ -81,7 +85,7 @@ const bookingSchema = mongoose.Schema(
       discountValue: {
         type: Number, // Discount value from the offer
         default: 0,
-        min: 0, 
+        min: 0,
       },
     },
     paymentId: {

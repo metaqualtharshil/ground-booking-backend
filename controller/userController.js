@@ -12,6 +12,7 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+  console.log(req.body.photo);
   //1) create error if user post passworddata
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -22,9 +23,10 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
   // 2) update user
-  const filterBody = filterObj(req.body, "name", "phone", "country", "city");
+  const filterBody = filterObj(req.body, "name", "phone", "country", "city","interestedSport");
   if (req.file) filterBody.photo = req.file.path;
 
+  filterBody.interestedSport = JSON.parse(req.body.interestedSport);
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filterBody, {
     new: true,
     runValidators: true,
@@ -38,7 +40,4 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
-
-exports.addFavorite = catchAsync(async (req,res,next)=>{
-  
-});
+exports.addFavorite = catchAsync(async (req, res, next) => {});

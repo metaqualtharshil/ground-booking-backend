@@ -2,13 +2,14 @@ const express = require("express");
 const router = express.Router();
 const coachingController = require("../controller/coachingController");
 const authController = require("../controller/authController");
-const {getUploader}  = require("../utils/cloudnary");
-const uploadGround = getUploader('coaching', 800, 800);
+// const {getUploader}  = require("../utils/cloudnary");
+// const uploadGround = getUploader('coaching', 800, 800);
 
 router
   .route("/")
   .get(authController.protect, coachingController.getAllCoaching)
-  .post(authController.protect, coachingController.uploadUserPhoto,coachingController.addCoaching);
+  .post(authController.protect,coachingController.addCoaching);
+  // .post(authController.protect, coachingController.uploadUserPhoto,coachingController.addCoaching);
 
 router
   .route("/:id")

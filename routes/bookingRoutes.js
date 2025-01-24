@@ -14,4 +14,8 @@ router.route("/:id")
 
 router.get("/userBooking/:userId",authController.protect,bookingController.getUserBooking);
 
+router.route("/user-booking/upcoming").get(authController.protect,bookingController.upcomingBooking);
+
+router.route("/user-booking/history").get(authController.protect,bookingController.historyBookingList);
+
 module.exports = router;

@@ -57,9 +57,13 @@ const groundSchema = mongoose.Schema(
       {
         icon: String,
         name: String, // cricket, football
-        groundName: { type: [String], default: [] }, // turf 1 , turf 2
-        availableSlots: [slotSchema],
-        priceChart: [priceChart],
+        groundName: [
+          {
+            name:String,
+            availableSlots: [slotSchema],
+            priceChart: [priceChart],
+          }
+        ], // turf 1 , turf 2
       },
     ],
     totalGround: {

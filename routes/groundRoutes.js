@@ -1,15 +1,23 @@
-const express = require('express');
-const groundController = require('../controller/groundController');
-const authController = require('../controller/authController');
-const upload = require('../utils/cloudnary');
+const express = require("express");
+const groundController = require("../controller/groundController");
+const authController = require("../controller/authController");
+const upload = require("../utils/cloudnary");
 const router = express.Router();
 
+router
+  .route("/sport")
+  .get(authController.protect, groundController.getAllSportsName);
 
-router.route('/').get(authController.protect,groundController.getGrounds).post(authController.protect,groundController.addGround);
+router
+  .route("/")
+  .get(authController.protect, groundController.getGrounds)
+  .post(authController.protect, groundController.addGround);
 
-router.route("/:id")
-        .get(authController.protect,groundController.getGround) 
-        .patch(authController.protect,groundController.updateGround) 
-        .delete(authController.protect,groundController.deleteGround);
+router
+  .route("/:id")
+  .get(authController.protect, groundController.getGround)
+  .patch(authController.protect, groundController.updateGround)
+  .delete(authController.protect, groundController.deleteGround);
+
 
 module.exports = router;

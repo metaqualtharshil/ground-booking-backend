@@ -50,3 +50,16 @@ exports.deleteGround = catchAsync(async (req, res) => {
     });
   }
 });
+
+exports.getAllSportsName = catchAsync(async (req, res) => {
+  const sportList = await Ground.aggregate([
+    { $unwind: "$availableSport" }, // Unwind the availableSport array
+    { $group: { _id: null, names: { $addToSet: "$availableSport.name" } } }, // Group and collect unique sport names
+    { $project: { _id: 0, names: 1 } }, // Project only the names field
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: sportList,
+  });
+});
