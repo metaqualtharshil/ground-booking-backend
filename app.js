@@ -18,22 +18,20 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const cron = require("node-cron");
 const multer = require("multer");
+const morgan = require('morgan');
 
-// app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 const upload = multer();
-app.use(upload.none());
-app.use(express.json());
-app.use(bodyParser.urlencoded({extended:true}));
+// app.use(upload.none());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(helmet()); //set security HTTP header
 
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-}
-
 //data sanitization against nosql query injection like this email:{"$gt":""}
 app.use(mongoSanitize());
+
+app.use('/img', express.static('public/img'));
 
 //data sanitization against xss when we put html code in body then convert html tag
 app.use(xss());
@@ -43,9 +41,14 @@ app.use(hpp());
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
-  console.log(req.header);
+  // console.log(req.header);
   next();
 });
+
+// console.log(process.env.NODE_ENV);
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/ground", groundRoutes);
@@ -59,26 +62,30 @@ app.all("*", (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on this server!!`, 404));
 });
 
-app.use(gloableErrorHandler);
+// app.use(gloableErrorHandler);
 
-cron.schedule("* * * * *", async () => {
-  const now = new Date();
-  const bookings = await Booking.find({ status: "Confirmed" });
+// cron.schedule("* * * * *", async () => {
+//   const now = new Date();
+//   console.log(now);
+//   try {
+//     const bookings = await Booking.find({ status: "Confirmed" });
 
-  const startTime = new Date(bookings.slot.startTime);
-  const endTime = new Date(bookings.slot.endTime);
+//     bookings.forEach(async (booking) => {
+//       const startTime = new Date(booking.slot.startTime);
+//       const endTime = new Date(booking.slot.endTime);
+//       console.log(`end time :: ${endTime}`);
 
-  console.log(startTime);
-  bookings.forEach(async (booking) => {
-    if (startTime <= now) {
-      booking.status = "In Progress";
-      await booking.save();
-    } 
-    else if (endTime <= now) {
-      booking.status = "Completed";
-      await booking.save();
-    }
-  });
-});
+//       if (startTime <= now) {
+//         booking.status = "In Progress";
+//         await booking.save();
+//       } else if (endTime <= now) {
+//         booking.status = "Completed";
+//         await booking.save();
+//       }
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 module.exports = app;

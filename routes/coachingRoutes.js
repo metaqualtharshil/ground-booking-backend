@@ -8,13 +8,18 @@ const authController = require("../controller/authController");
 router
   .route("/")
   .get(authController.protect, coachingController.getAllCoaching)
-  .post(authController.protect,coachingController.addCoaching);
-  // .post(authController.protect, coachingController.uploadUserPhoto,coachingController.addCoaching);
+  // .post(authController.protect,coachingController.addCoaching);
+  .post(
+    authController.protect,
+    coachingController.uploadUserPhoto,
+    coachingController.resizeCoachingImages,
+    coachingController.addCoaching
+  );
 
 router
   .route("/:id")
   .get(authController.protect, coachingController.getCoaching)
-  .patch(authController.protect, coachingController.updateCoaching)
+  .patch(authController.protect, coachingController.uploadUserPhoto, coachingController.updateCoaching)
   .delete(authController.protect, coachingController.deleteCoaching);
 
 module.exports = router;

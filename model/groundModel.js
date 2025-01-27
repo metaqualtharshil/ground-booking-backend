@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const slotSchema = new mongoose.Schema({
   date: { type: Date, required: true }, // Date of the slot
-  startTime: { type: String, required: true }, // Start time of the slot
-  endTime: { type: String, required: true }, // End time of the slot
+  startTime: { type: Date, required: true }, // Start time of the slot
+  endTime: { type: Date, required: true }, // End time of the slot
   status: {
     type: String,
     enum: ["available", "booked"],
