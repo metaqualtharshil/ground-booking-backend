@@ -21,7 +21,7 @@ exports.updateOne = (Model) =>
       runValidators: true, //if false then model validator not use if we true then use
     });
     if (!doc) {
-      return next(new AppError("No booking found for this id", 404));
+      return next(new AppError("No found for this id", 404));
     }
     res.status(201).json({
       status: "success",
@@ -31,15 +31,6 @@ exports.updateOne = (Model) =>
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    // Collect Cloudinary image URLs
-    // if (req.files.length > 0 && req.files) {
-    //   const photos = req.files.map((file) => file.path);
-    //   req.body.photos = photos;
-    //   req.body.location = JSON.parse(req.body.location);
-    //   req.body.features = JSON.parse(req.body.features);
-    //   req.body.availableSport = JSON.parse(req.body.availableSport);
-    // }
-
     const newDoc = await Model.create(req.body);
     res.status(201).json({
       status: "success",

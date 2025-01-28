@@ -4,6 +4,7 @@ const slotSchema = new mongoose.Schema({
   date: { type: Date, required: true }, // Date of the slot
   startTime: { type: Date, required: true }, // Start time of the slot
   endTime: { type: Date, required: true }, // End time of the slot
+  price: Number,
   status: {
     type: String,
     enum: ["available", "booked"],
@@ -59,16 +60,16 @@ const groundSchema = mongoose.Schema(
         name: String, // cricket, football
         groundName: [
           {
-            name:String,
+            name: String,
             availableSlots: [slotSchema],
             priceChart: [priceChart],
-          }
+          },
         ], // turf 1 , turf 2
       },
     ],
     totalGround: {
-      type:Number,
-      default:1
+      type: Number,
+      default: 1,
     },
     photos: { type: [String], default: [] },
     rating: {

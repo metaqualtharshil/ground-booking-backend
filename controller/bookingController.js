@@ -11,8 +11,10 @@ exports.addBooking = catchAsync(async (req, res, next) => {
     { "availableSport.groundName.availableSlots._id": req.body.slot.slotId },
     {
       $set: {
-        "availableSport.$[].groundName.$[].availableSlots.$[elem].status": "booked",
-        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy": req.body.userId,
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
+          "booked",
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":
+          req.body.userId,
       },
     },
     {
@@ -46,12 +48,12 @@ exports.upcomingBooking = catchAsync(async (req, res) => {
 
   const upcomingBookingList = await Booking.find({
     userId: req.user.id,
-    status: "Pending",
-    date: { $gte: new Date() },
+    $or: [{ status: "Pending" }, { status: "Confirmed" }],
+    "slot.startTime": { $gte: new Date() },
   })
     .skip(skip)
     .limit(parseInt(limit))
-    .sort({ date: 1 });
+    .sort({ "slot.startTime": 1 });
 
   res.status(200).json({
     status: "success",

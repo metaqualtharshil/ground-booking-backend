@@ -1,5 +1,6 @@
 const express = require("express");
 const AppError = require("./utils/appError");
+const logToFile = require("./utils/cronJobTxt");
 const Booking = require("./model/bookingModel");
 const userRoutes = require("./routes/userRoutes");
 const groundRoutes = require("./routes/groundRoutes");
@@ -20,7 +21,6 @@ const cron = require("node-cron");
 const multer = require("multer");
 const morgan = require('morgan');
 
-// app.use(bodyParser.urlencoded({ extended: true }));
 const upload = multer();
 // app.use(upload.none());
 app.use(bodyParser.json());
@@ -62,30 +62,32 @@ app.all("*", (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on this server!!`, 404));
 });
 
-// app.use(gloableErrorHandler);
+app.use(gloableErrorHandler);
 
-// cron.schedule("* * * * *", async () => {
-//   const now = new Date();
-//   console.log(now);
-//   try {
-//     const bookings = await Booking.find({ status: "Confirmed" });
+cron.schedule("*/5 * * * *", async () => {  // every 5 min */5 * * * *  , * * * * *
+  const currentDate = new Date(); // Get current date and time
+  currentDate.setHours(currentDate.getHours() + 5); // Add 5 hours
+  currentDate.setMinutes(currentDate.getMinutes() + 30); // Add 30 minutes
+  console.log(currentDate.toISOString()); // Output will be in ISO format
+  
+  try {
+     // Update bookings whose slot.endTime has passed
+     const result = await Booking.updateMany(
+      {
+        status: "Confirmed",
+        "slot.endTime": { $lt: currentDate.toISOString() } 
+      },
+      {
+        $set: { status: "Completed" }
+      }
+    );
 
-//     bookings.forEach(async (booking) => {
-//       const startTime = new Date(booking.slot.startTime);
-//       const endTime = new Date(booking.slot.endTime);
-//       console.log(`end time :: ${endTime}`);
+    console.log(`Status updated for ${result.modifiedCount} bookings`);
+    // logToFile(`Status updated for ${result.modifiedCount} bookings`);
 
-//       if (startTime <= now) {
-//         booking.status = "In Progress";
-//         await booking.save();
-//       } else if (endTime <= now) {
-//         booking.status = "Completed";
-//         await booking.save();
-//       }
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 module.exports = app;

@@ -5,16 +5,19 @@ const bannerSchema = mongoose.Schema(
     name: {
       type: String,
     },
-    url:{
-        type:String,
-        required:[true,"Banner url is required."]
-    }
+    photo: {
+      type: String,
+      required: [true, "Banner photo is required."],
+    },
+    priority: {
+      type: Number,
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const banner = mongoose.model('Banner',bannerSchema);
+const banner = mongoose.model("Banner", bannerSchema);
 
 module.exports = banner;

@@ -9,14 +9,12 @@ const coachingSchema = mongoose.Schema({
     type: String,
     required: [true, "description is required."],
   },
-  // location: {
-  //   address: { type: String, required: true },
-  //   city: { type: String, required: true },
-  //   state: { type: String, required: true },
-  //   country: { type: String, required: true },
-  //   latitude: { type: Number, required: true },
-  //   longitude: { type: Number, required: true },
-  // },
+  location: {
+    address: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    country: { type: String, required: true }
+  },
   session: {
     type: String,
     required: [true, "session is required."],

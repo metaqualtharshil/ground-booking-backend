@@ -1,13 +1,49 @@
 const catchAsync = require("../utils/catchAsync");
 const factory = require("../controller/handleFactory");
 const Ground = require("../model/groundModel");
-const cloudinary = require("cloudinary").v2;
+const multer = require("multer");
+const sharp = require("sharp");
+const deleteImage = require("../utils/deleteImage");
+const AppError = require("../utils/appError");
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
+// Configure Multer Storage (in memory for Sharp processing)
+const multerStorage = multer.memoryStorage(); // Store files in memory as buffers
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith("image")) {
+    cb(null, true);
+  } else {
+    cb(new AppError("Not an image please only upload image", 400), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadUserPhoto = upload.array("photos", 5);
+
+exports.resizeGroundImages = catchAsync(async (req, res, next) => {
+  if (!req.files || req.files.length === 0) return next();
+
+  //1)images
+  req.body.photos = [];
+
+  await Promise.all(
+    req.files.map(async (file, i) => {
+      const filename = `ground-${req.user.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/img/ground/${filename}`);
+
+      req.body.photos.push(filename);
+    })
+  );
+  next();
 });
 
 exports.getGrounds = factory.getAll(Ground);
@@ -16,39 +52,61 @@ exports.getGround = factory.getOne(Ground);
 
 exports.addGround = factory.createOne(Ground);
 
-exports.updateGround = factory.updateOne(Ground);
+exports.updateGround = catchAsync(async (req, res, next) => {
+  const ground = await Ground.findById(req.params.id);
+  if (!ground) {
+    return next(new AppError("No ground found for this id", 404));
+  }
+  // 2. Delete old images if new files are provided
+  if (req.files && req.files.length > 0 && ground.photos.length > 0) {
+    ground.photos.forEach((filename) => {
+      deleteImage("ground", filename); // Delete old images
+    });
+  }
+  if (req.files && req.files.length > 0) {
+    //1)images
+    req.body.photos = [];
+
+    await Promise.all(
+      req.files.map(async (file, i) => {
+        const filename = `ground-${req.user.id}-${Date.now()}-${i + 1}.jpeg`;
+
+        await sharp(file.buffer)
+          .resize(2000, 1333)
+          .toFormat("jpeg")
+          .jpeg({ quality: 90 })
+          .toFile(`public/img/ground/${filename}`);
+
+        req.body.photos.push(filename);
+      })
+    );
+  }
+
+  const doc = await Ground.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true, //if false then model validator not use if we true then use
+  });
+
+  res.status(201).json({
+    status: "success",
+    data: doc,
+  });
+});
 
 exports.deleteGround = catchAsync(async (req, res) => {
-  try {
     const ground = await Ground.findById(req.params.id);
-    // 1. Delete photos from Cloudinary (if any)
-    // if (ground.photos && ground.photos.length > 0) {
-    //   for (const photoUrl of ground.photos) {
-    //     const publicId = `${photoUrl.split("/")[7].split(".")[0]}/${
-    //       photoUrl.split("/")[8].split(".")[0]
-    //     }`;
-    //     const cloudinaryResponse = await cloudinary.uploader.destroy(publicId);
-
-    //     console.log("Cloudinary response:", cloudinaryResponse);
-
-    //     // Check if Cloudinary returns an error
-    //     if (cloudinaryResponse.result !== "ok") {
-    //       throw new Error(`Failed to delete image with public ID: ${publicId}`);
-    //     }
-    //   }
-    // }
+    // 2. Delete images associated with the coaching
+    if (ground.photos && ground.photos.length > 0) {
+      ground.photos.forEach((photoUrl) => {
+        deleteImage("ground", photoUrl);
+      });
+    }
 
     const doc = await Ground.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: "success",
       data: null,
     });
-  } catch (error) {
-    res.status(400).json({
-      status: "fail",
-      message: error,
-    });
-  }
 });
 
 exports.getAllSportsName = catchAsync(async (req, res) => {
