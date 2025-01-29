@@ -5,6 +5,7 @@ const AppError = require("../utils/appError");
 const { promisify } = require("util");
 const crypto = require("crypto");
 const sendEmail = require('../utils/email');
+const sendOTP = require('../utils/twilio');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -48,7 +49,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
   }
-
+  // sendOTP("+919409327827", 345675);
   const token = signToken(user._id);
 
   res.status(200).json({

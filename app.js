@@ -19,7 +19,7 @@ const xss = require("xss-clean");
 const hpp = require("hpp");
 const cron = require("node-cron");
 const multer = require("multer");
-const morgan = require('morgan');
+const morgan = require("morgan");
 
 const upload = multer();
 // app.use(upload.none());
@@ -31,7 +31,7 @@ app.use(helmet()); //set security HTTP header
 //data sanitization against nosql query injection like this email:{"$gt":""}
 app.use(mongoSanitize());
 
-app.use('/img', express.static('public/img'));
+app.use("/img", express.static("public/img"));
 
 //data sanitization against xss when we put html code in body then convert html tag
 app.use(xss());
@@ -64,27 +64,27 @@ app.all("*", (req, res, next) => {
 
 app.use(gloableErrorHandler);
 
-cron.schedule("*/5 * * * *", async () => {  // every 5 min */5 * * * *  , * * * * *
+cron.schedule("*/5 * * * *", async () => {
+  // every 5 min */5 * * * *  , * * * * *
   const currentDate = new Date(); // Get current date and time
+  // console.log(Date(currentDate.toISOString())); // Output will be in ISO format
   currentDate.setHours(currentDate.getHours() + 5); // Add 5 hours
   currentDate.setMinutes(currentDate.getMinutes() + 30); // Add 30 minutes
   console.log(currentDate.toISOString()); // Output will be in ISO format
-  
   try {
-     // Update bookings whose slot.endTime has passed
-     const result = await Booking.updateMany(
+    // Update bookings whose slot.endTime has passed
+    const result = await Booking.updateMany(
       {
         status: "Confirmed",
-        "slot.endTime": { $lt: currentDate.toISOString() } 
+        "slot.endTime": { $lt: currentDate.toISOString() },
       },
       {
-        $set: { status: "Completed" }
+        $set: { status: "Completed" },
       }
     );
 
     console.log(`Status updated for ${result.modifiedCount} bookings`);
     // logToFile(`Status updated for ${result.modifiedCount} bookings`);
-
   } catch (error) {
     console.log(error);
   }
