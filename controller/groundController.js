@@ -94,19 +94,19 @@ exports.updateGround = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteGround = catchAsync(async (req, res) => {
-    const ground = await Ground.findById(req.params.id);
-    // 2. Delete images associated with the coaching
-    if (ground.photos && ground.photos.length > 0) {
-      ground.photos.forEach((photoUrl) => {
-        deleteImage("ground", photoUrl);
-      });
-    }
-
-    const doc = await Ground.findByIdAndDelete(req.params.id);
-    res.status(204).json({
-      status: "success",
-      data: null,
+  const ground = await Ground.findById(req.params.id);
+  // 2. Delete images associated with the coaching
+  if (ground.photos && ground.photos.length > 0) {
+    ground.photos.forEach((photoUrl) => {
+      deleteImage("ground", photoUrl);
     });
+  }
+
+  const doc = await Ground.findByIdAndDelete(req.params.id);
+  res.status(204).json({
+    status: "success",
+    data: null,
+  });
 });
 
 exports.getAllSportsName = catchAsync(async (req, res) => {
