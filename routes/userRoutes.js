@@ -12,8 +12,11 @@ router.post('/signup',authController.signUp);
 router.post('/login',authController.login);
 router.post('/updatePassword',authController.protect,authController.updatePassword);
 
-router.post('/forgetPassword',authController.forgetPassword);
+// router.post('/forgetPassword',authController.forgetPassword);
+router.post('/forgetPassword',authController.generateOtp);
 router.post('/resetPassword/:token',authController.resetPassowrd);
 
+router.post('/generate-otp',authController.generateOtp);
+router.post('/verify-otp',authController.verifyOtp);
 
 module.exports = router;

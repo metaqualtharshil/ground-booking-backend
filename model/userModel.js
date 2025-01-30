@@ -36,9 +36,15 @@ const userSchema = mongoose.Schema(
     },
     phone: {
       type: String,
-      minlength: 10,
-      maxlength: 10,
+      unique:true,
+      minlength: 13,
+      maxlength: 13,
     },
+    otp:{
+      type:Number
+    },
+    otpExpiry:Date,
+    isVerified:Boolean,
     isPhoneVerify: {
       type: Boolean,
       default: false,
@@ -56,6 +62,10 @@ const userSchema = mongoose.Schema(
     country: {
       type: String,
       default: "India",
+    },
+    countryCode: {
+      type: String,
+      default: "+91",
     },
     photo:String,
     fcmToken:String,
@@ -84,13 +94,13 @@ const userSchema = mongoose.Schema(
   }
 );
 
-userSchema.pre("save", async function (req, res, next) {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
   //delete passwordConfirm field
   this.passwordConfirm = undefined;
-  // next();
+  next();
 });
 
 userSchema.pre("save", function (next) {

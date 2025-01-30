@@ -4,8 +4,9 @@ const jwt = require("jsonwebtoken");
 const AppError = require("../utils/appError");
 const { promisify } = require("util");
 const crypto = require("crypto");
-const sendEmail = require('../utils/email');
-const sendOTP = require('../utils/twilio');
+const otpGenerator = require("otp-generator");
+const sendEmail = require("../utils/email");
+const sendOTP = require("../utils/twilio");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -37,19 +38,72 @@ exports.signUp = catchAsync(async (req, res) => {
   });
 });
 
+exports.generateOtp = catchAsync(async (req, res, next) => {
+  const { phone, email } = req.body;
+  const otp = otpGenerator.generate(6, {
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: false,
+    alphabets: false,
+    specialChars :false
+  });
+  const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
+
+  const user = await User.findOne({ phone });
+  if (!user) {
+    return res.status(400).json({ message: "User not found" });
+  } else {
+    user.otp = otp;
+    user.otpExpiry = otpExpiry;
+  }
+
+  await user.save({ validateBeforeSave: false });
+
+  // Send OTP via SMS or Email (Using Twilio or Nodemailer)
+  sendOTP(phone, otp);
+  console.log(`OTP for ${phone || email}: ${otp}`); // Debugging
+
+  res.status(200).json({ message: "OTP sent successfully" });
+});
+
+exports.verifyOtp = catchAsync(async (req, res) => {
+  const { phone, otp } = req.body;
+
+  const user = await User.findOne({ phone });
+  if (!user) {
+    return res.status(400).json({ message: "User not found" });
+  }
+  // Check OTP validity
+  if (user.otp !== otp || new Date() > new Date(user.otpExpiry)) {
+    return res.status(400).json({ message: "Invalid or expired OTP" });
+  }
+
+  user.isVerified = true;
+  user.otp = null;
+  user.otpExpiry = null;
+  await user.save({ validateBeforeSave: false });
+
+  res.status(200).json({ message: "OTP verified successfully"});
+});
+
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  if (!email || !password) {
-    return next(new AppError("Please provide email and password", 400));
+  // if (!email || !password) {
+  //   return next(new AppError("Please provide phone and password", 400));
+  // }
+
+  // const user = await User.findOne({ phone }).select("+password");
+
+  // if (!user || !(await user.correctPassword(password, user.password))) {
+  //   return next(new AppError("Incorrect email or password", 401));
+  // }
+
+  const user = await User.findOne({ phone, isVerified: true });
+
+  if (!user) {
+    return res.status(400).json({ message: "User not found or not verified" });
   }
 
-  const user = await User.findOne({ email }).select("+password");
-
-  if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(new AppError("Incorrect email or password", 401));
-  }
-  // sendOTP("+919409327827", 345675);
   const token = signToken(user._id);
 
   res.status(200).json({
@@ -153,14 +207,14 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.resetPassowrd = catchAsync(async (req, res, next) => {
-  // 1) get user based on token
+    // 1) get user based on token
   const hasedToken = crypto
     .createHash("sha256")
     .update(req.params.token)
     .digest("hex");
 
-    console.log(hasedToken);
-    const user = await User.findOne({
+  console.log(hasedToken);
+  const user = await User.findOne({
     passwordResetToken: hasedToken,
     // passwordResetExpires: { $gt: Date.now() },
   });
@@ -174,6 +228,8 @@ exports.resetPassowrd = catchAsync(async (req, res, next) => {
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
+  user.otp = undefined; // Clear OTP after password reset
+  user.otpExpiry = undefined;
   await user.save();
 
   //3) update changepasswordAt property for the user
