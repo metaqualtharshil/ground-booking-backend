@@ -80,6 +80,11 @@ const groundSchema = mongoose.Schema(
     aboutVenue: {
       type: String,
     },
+    addedBy:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:'User',
+      required:true
+    }
   },
   {
     timestamps: true,

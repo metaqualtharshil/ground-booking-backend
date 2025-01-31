@@ -4,7 +4,7 @@ const logToFile = require("./utils/cronJobTxt");
 const Booking = require("./model/bookingModel");
 const userRoutes = require("./routes/userRoutes");
 const groundRoutes = require("./routes/groundRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
+const {booking , bookingAdmin} = require("./routes/bookingRoutes");
 const bannerRoutes = require("./routes/bannerRoutes");
 const offerRoutes = require("./routes/offerRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
@@ -52,7 +52,8 @@ if (process.env.NODE_ENV === "development") {
 
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/ground", groundRoutes);
-app.use("/api/v1/booking", bookingRoutes);
+app.use("/api/v1/booking", booking);
+app.use("/api/v1/admin/booking", bookingAdmin);
 app.use("/api/v1/banner", bannerRoutes);
 app.use("/api/v1/offer", offerRoutes);
 app.use("/api/v1/payment", paymentRoutes);

@@ -1,21 +1,24 @@
 const express = require("express");
 const authController = require("../controller/authController");
 const bookingController = require("../controller/bookingController");
-const router = express.Router();
+const booking = express.Router();
+const bookingAdmin = express.Router();
 
-router.route("/")
+booking.route("/")
             .get(authController.protect,bookingController.getBooking)
             .post(authController.protect,bookingController.addBooking);
 
-router.route("/:id")
+booking.route("/:id")
             .get(authController.protect,bookingController.getOneBooking)
             .patch(authController.protect,bookingController.updateBooking)
             .delete(authController.protect,bookingController.deleteBooking);
 
-router.get("/userBooking/:userId",authController.protect,bookingController.getUserBooking);
+booking.get("/userBooking/:userId",authController.protect,bookingController.getUserBooking);
 
-router.route("/user-booking/upcoming").get(authController.protect,bookingController.upcomingBooking);
+booking.route("/user-booking/upcoming").get(authController.protect,bookingController.upcomingBooking);
 
-router.route("/user-booking/history").get(authController.protect,bookingController.historyBookingList);
+booking.route("/user-booking/history").get(authController.protect,bookingController.historyBookingList);
 
-module.exports = router;
+bookingAdmin.route("/admin-all-booking").get(authController.protect,bookingController.getAllGroundBookingForAdmin);
+
+module.exports = {booking,bookingAdmin};

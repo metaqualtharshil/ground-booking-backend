@@ -13,4 +13,5 @@ router
   .patch(authController.protect, paymentController.updatePayment)
   .delete(authController.protect, paymentController.deletePayment);
 
+router.get("/getTotalRevenue",authController.protect,paymentController.getTotalRevenue);
 module.exports = router;

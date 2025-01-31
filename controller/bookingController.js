@@ -41,6 +41,34 @@ exports.getUserBooking = catchAsync(async (req, res, next) => {
   });
 });
 
+// API to Get All Bookings of Grounds for Admin
+exports.getAllGroundBookingForAdmin = catchAsync(async (req, res) => {
+  const id = req.user.id;
+
+  // Step 1: Find all grounds added by this admin
+  const grounds = await Ground.find({ addedBy: id });
+  console.log(grounds);
+  if (grounds.length === 0) {
+    return res
+      .status(404)
+      .json({ success: false, message: "No grounds found for this admin" });
+  }
+
+  // Step 2: Get ground IDs
+  const groundIds = grounds.map((ground) => ground._id);
+
+  // Step 3: Find all bookings for these grounds
+  const bookings = await Booking.find({
+    groundId: { $in: groundIds },
+  }).populate("groundId");
+
+  res.status(200).json({
+    success: true,
+    count: bookings.length,
+    data: bookings,
+  });
+});
+
 exports.upcomingBooking = catchAsync(async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
 

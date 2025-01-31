@@ -121,3 +121,19 @@ exports.getAllSportsName = catchAsync(async (req, res) => {
     data: sportList,
   });
 });
+
+exports.getAdminGrounds = catchAsync(async(req,res)=>{
+  const grounds = await Ground.find({"addedBy": req.user.id});
+
+  if(!grounds){
+    return res.status(400).json({
+      success: false, message: "No grounds found for this admin"
+    })
+  }
+
+  res.status(200).json({
+    success: true,
+    count: grounds.length,
+    data: grounds,
+  });
+});

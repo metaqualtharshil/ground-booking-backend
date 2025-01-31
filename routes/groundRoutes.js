@@ -8,6 +8,8 @@ router
   .route("/sport")
   .get(authController.protect, groundController.getAllSportsName);
 
+router.get("/getAllGroundForAdmin",authController.protect,groundController.getAdminGrounds);
+
 router
   .route("/")
   .get(authController.protect, groundController.getGrounds)
