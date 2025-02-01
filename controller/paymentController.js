@@ -55,3 +55,35 @@ exports.getTotalRevenue = catchAsync(async (req, res) => {
     totalAmount: totalrevenue[0].totalAmount,
   });
 });
+
+exports.getPaymentListAdmin = catchAsync(async(req,res)=>{
+  const adminGrounds = await Ground.find({ addedBy: req.user.id });
+
+  if (!adminGrounds) {
+    return res.status(400).json({
+      success: false,
+      message: "No grounds found for this admin",
+    });
+  }
+
+  const groundId = adminGrounds.map((ground) => ground._id);
+
+  const adminBooking = await Booking.find({ groundId: groundId });
+
+  if (!adminBooking) {
+    return res.status(400).json({
+      success: false,
+      message: "No BOOKING found for this admin",
+    });
+  }
+//   console.log(adminBooking);
+
+  const bookingIds = adminBooking.map((booking) => booking._id);
+
+  const paymentList = await Payment.find({ bookingId: { $in : bookingIds} });
+
+  res.status(200).json({
+    success: true,
+    data: paymentList,
+  });
+});

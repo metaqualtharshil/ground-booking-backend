@@ -11,10 +11,8 @@ exports.addBooking = catchAsync(async (req, res, next) => {
     { "availableSport.groundName.availableSlots._id": req.body.slot.slotId },
     {
       $set: {
-        "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
-          "booked",
-        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":
-          req.body.userId,
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].status":"booked",
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":req.body.userId,
       },
     },
     {
