@@ -71,7 +71,8 @@ const userSchema = mongoose.Schema(
     fcmToken:String,
     referralCode: {
       type: String, // Unique code for each user
-      unique: true,
+      unique: false,
+      default:"gfgsd"
     },
     referredBy: {
       type: String, // Referral code used by this user
@@ -145,6 +146,12 @@ userSchema.methods.createPasswordResetToken = function () {
   return resetToken;
 };
 
+// Automatically remove password from responses
+// userSchema.methods.toJSON = function () {
+//   const obj = this.toObject();
+//   delete obj.password;
+//   return obj;
+// };
 const user = mongoose.model("User", userSchema);
 
 module.exports = user;

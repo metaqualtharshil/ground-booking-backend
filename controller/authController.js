@@ -27,13 +27,14 @@ exports.signUp = catchAsync(async (req, res) => {
   });
 
   const token = signToken(newUser._id);
+  const { password: _, ...userWithoutPassword } = newUser.toObject();
 
   res.status(200).json({
     status: "success",
     token: token,
     requestedAt: req.requestTime,
     data: {
-      user: newUser,
+      user: userWithoutPassword,
     },
   });
 });
@@ -44,7 +45,7 @@ exports.generateOtp = catchAsync(async (req, res, next) => {
     lowerCaseAlphabets: false,
     upperCaseAlphabets: false,
     alphabets: false,
-    specialChars :false
+    specialChars: false,
   });
   const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 min expiry
 
@@ -59,7 +60,7 @@ exports.generateOtp = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   // Send OTP via SMS or Email (Using Twilio or Nodemailer)
-  sendOTP(phone, otp);
+  // sendOTP(phone, otp);
   console.log(`OTP for ${phone || email}: ${otp}`); // Debugging
 
   res.status(200).json({ message: "OTP sent successfully" });
@@ -74,7 +75,7 @@ exports.verifyOtp = catchAsync(async (req, res) => {
   }
   // Check OTP validity
   if (user.otp !== otp || new Date() > new Date(user.otpExpiry)) {
-    return res.status(400).json({ message: "Invalid or expired OTP" });
+    return res.status(200).json({ status: "false", message: "Invalid or expired OTP" });
   }
 
   user.isVerified = true;
@@ -82,7 +83,10 @@ exports.verifyOtp = catchAsync(async (req, res) => {
   user.otpExpiry = null;
   await user.save({ validateBeforeSave: false });
 
-  res.status(200).json({ message: "OTP verified successfully"});
+  res.status(200).json({
+    status: "success",
+    message: "OTP verified successfully" 
+    });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -207,7 +211,7 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
 });
 
 exports.resetPassowrd = catchAsync(async (req, res, next) => {
-    // 1) get user based on token
+  // 1) get user based on token
   const hasedToken = crypto
     .createHash("sha256")
     .update(req.params.token)
