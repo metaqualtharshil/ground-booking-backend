@@ -32,7 +32,7 @@ exports.getTotalRevenue = catchAsync(async (req, res) => {
       message: "No BOOKING found for this admin",
     });
   }
-//   console.log(adminBooking);
+  //   console.log(adminBooking);
 
   const bookingIds = adminBooking.map((booking) => booking._id);
 
@@ -56,7 +56,7 @@ exports.getTotalRevenue = catchAsync(async (req, res) => {
   });
 });
 
-exports.getPaymentListAdmin = catchAsync(async(req,res)=>{
+exports.getPaymentListAdmin = catchAsync(async (req, res) => {
   const adminGrounds = await Ground.find({ addedBy: req.user.id });
 
   if (!adminGrounds) {
@@ -76,14 +76,17 @@ exports.getPaymentListAdmin = catchAsync(async(req,res)=>{
       message: "No BOOKING found for this admin",
     });
   }
-//   console.log(adminBooking);
+  //   console.log(adminBooking);
 
   const bookingIds = adminBooking.map((booking) => booking._id);
 
-  const paymentList = await Payment.find({ bookingId: { $in : bookingIds} });
+  const paymentList = await Payment.find({
+    bookingId: { $in: bookingIds },
+  }).populate("userId", "name -_id").populate("bookingId",'groundDetails slot -_id');
 
   res.status(200).json({
     success: true,
+    count: paymentList.length,
     data: paymentList,
   });
 });

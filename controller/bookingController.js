@@ -58,7 +58,7 @@ exports.getAllGroundBookingForAdmin = catchAsync(async (req, res) => {
   // Step 3: Find all bookings for these grounds
   const bookings = await Booking.find({
     groundId: { $in: groundIds },
-  }).populate("groundId");
+  }); //.populate("groundId");
 
   res.status(200).json({
     success: true,
