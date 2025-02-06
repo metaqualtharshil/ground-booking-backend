@@ -18,7 +18,7 @@ exports.updateOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
-      runValidators: true, //if false then model validator not use if we true then use
+      runValidators: false, //if false then model validator not use if we true then use
     });
     if (!doc) {
       return next(new AppError("No found for this id", 404));

@@ -51,6 +51,10 @@ const bookingSchema = mongoose.Schema(
       },
       groundName: {
         type: String,
+        required: true, // e.g., "Heaven"
+      },
+      subGroundName: {
+        type: String,
         required: true, // e.g., "Turf 1", "Turf 2"
       },
     },
