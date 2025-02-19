@@ -43,9 +43,9 @@ const groundSchema = mongoose.Schema(
       address: { type: String, required: true },
       city: { type: String, required: true },
       state: { type: String, required: true },
-      country: { type: String, required: true },
-      latitude: { type: Number, required: true },
-      longitude: { type: Number, required: true },
+      country: { type: String, default: "India" },
+      latitude: { type: Number },
+      longitude: { type: Number },
     },
     features: { type: [String], default: [] }, // Default to an empty array
     capacity: { type: Number, required: true },
@@ -73,18 +73,23 @@ const groundSchema = mongoose.Schema(
     },
     photos: { type: [String], default: [] },
     rating: {
-      stars: { type: Number, default: 0 }, // e.g., 1 to 5 stars
-      review: String, // Optional text review from the user
-      ratedAt: Date, // When the rating was submitted
+      type: [
+        {
+          stars: { type: Number, default: 4, min: 1, max: 5 }, // e.g., 1 to 5 stars
+          review: { type: String, default: "Great" }, // Optional text review from the user
+          ratedAt: { type: Date, default: Date.now }, // When the rating was submitted
+        },
+      ],
+      default: [],
     },
     aboutVenue: {
       type: String,
     },
-    addedBy:{
-      type:mongoose.Schema.Types.ObjectId,
-      ref:'User',
-      required:true
-    }
+    addedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,

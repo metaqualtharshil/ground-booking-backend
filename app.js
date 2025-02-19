@@ -25,7 +25,8 @@ const upload = multer();
 // app.use(upload.none());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(express.json()); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); 
 app.use(helmet()); //set security HTTP header
 
 //data sanitization against nosql query injection like this email:{"$gt":""}

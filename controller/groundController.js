@@ -3,17 +3,35 @@ const factory = require("../controller/handleFactory");
 const Ground = require("../model/groundModel");
 const multer = require("multer");
 const sharp = require("sharp");
+const mongoose = require("mongoose");
 const deleteImage = require("../utils/deleteImage");
 const AppError = require("../utils/appError");
 
 // Configure Multer Storage (in memory for Sharp processing)
 const multerStorage = multer.memoryStorage(); // Store files in memory as buffers
 
+// const multerFilter = (req, file, cb) => {
+//   console.log("File MIME Type:", file.mimetype); // Log MIME type
+//   if (file.mimetype.startsWith("image/")) {
+//     cb(null, true);
+//   } else {
+//     cb(new AppError("Not an image please only upload image", 400), false);
+//   }
+// };
 const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith("image")) {
-    cb(null, true);
+  const fileTypes = /jpeg|jpg|png|gif|bmp|webp/; // Allowed image types
+  const mimeType = file.mimetype.startsWith("image"); // Check MIME type
+  const extName = fileTypes.test(
+    file.originalname.split(".").pop().toLowerCase()
+  ); // Check extension
+
+  if (mimeType && extName) {
+    return cb(null, true);
   } else {
-    cb(new AppError("Not an image please only upload image", 400), false);
+    return cb(
+      new AppError("Not an image! Please upload only image files.", 400),
+      false
+    );
   }
 };
 
@@ -53,19 +71,33 @@ exports.getGround = factory.getOne(Ground);
 exports.addGround = factory.createOne(Ground);
 
 exports.updateGround = catchAsync(async (req, res, next) => {
-  const ground = await Ground.findById(req.params.id);
+  const ground = await Ground.findById(
+    new mongoose.Types.ObjectId(req.params.id)
+  );
   if (!ground) {
     return next(new AppError("No ground found for this id", 404));
   }
+
+  // Get images to keep
+  let imagesToKeep = req.body.imagesToKeep || [];
+  // Delete images NOT in the keep list filter function return new array
+  ground.photos = ground.photos.filter((filename) => {
+    if (!imagesToKeep.includes(filename)) {
+      deleteImage("ground", filename); // Delete image file
+      return false;
+    }
+    return true;
+  });
+  req.body.photos = ground.photos;
   // 2. Delete old images if new files are provided
-  if (req.files && req.files.length > 0 && ground.photos.length > 0) {
-    ground.photos.forEach((filename) => {
-      deleteImage("ground", filename); // Delete old images
-    });
-  }
+  // if (req.files && req.files.length > 0 && ground.photos.length > 0) {
+  //   ground.photos.forEach((filename) => {
+  //     deleteImage("ground", filename); // Delete old images
+  //   });
+  // }
   if (req.files && req.files.length > 0) {
     //1)images
-    req.body.photos = [];
+    let newImages = [];
 
     await Promise.all(
       req.files.map(async (file, i) => {
@@ -77,11 +109,15 @@ exports.updateGround = catchAsync(async (req, res, next) => {
           .jpeg({ quality: 90 })
           .toFile(`public/img/ground/${filename}`);
 
-        req.body.photos.push(filename);
+        newImages.push(filename);
       })
     );
-  }
 
+    req.body.photos = [...ground.photos, ...newImages]; // Keep old & new images
+    // console.log(`old : ${ground.photos}`);
+    // console.log(`new : ${newImages}`);
+  }
+  console.log(`sssss : ${req.body.photos}`);
   const doc = await Ground.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true, //if false then model validator not use if we true then use
@@ -122,13 +158,14 @@ exports.getAllSportsName = catchAsync(async (req, res) => {
   });
 });
 
-exports.getAdminGrounds = catchAsync(async(req,res)=>{
-  const grounds = await Ground.find({"addedBy": req.user.id});
+exports.getAdminGrounds = catchAsync(async (req, res) => {
+  const grounds = await Ground.find({ addedBy: req.user.id });
 
-  if(!grounds){
+  if (!grounds) {
     return res.status(400).json({
-      success: false, message: "No grounds found for this admin"
-    })
+      success: false,
+      message: "No grounds found for this admin",
+    });
   }
 
   res.status(200).json({
