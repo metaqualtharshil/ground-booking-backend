@@ -71,9 +71,7 @@ exports.getGround = factory.getOne(Ground);
 exports.addGround = factory.createOne(Ground);
 
 exports.updateGround = catchAsync(async (req, res, next) => {
-  const ground = await Ground.findById(
-    new mongoose.Types.ObjectId(req.params.id)
-  );
+  const ground = await Ground.findById(req.params.id);
   if (!ground) {
     return next(new AppError("No ground found for this id", 404));
   }
@@ -117,11 +115,20 @@ exports.updateGround = catchAsync(async (req, res, next) => {
     // console.log(`old : ${ground.photos}`);
     // console.log(`new : ${newImages}`);
   }
-  console.log(`sssss : ${req.body.photos}`);
-  const doc = await Ground.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true, //if false then model validator not use if we true then use
-  });
+
+  // const doc = await Ground.findByIdAndUpdate(
+  //   req.params.id,
+  //   JSON.stringify(req.body),
+  //   {
+  //     new: true,
+  //     runValidators: true, //if false then model validator not use if we true then use
+  //   }
+  // );
+  const doc = await Ground.findByIdAndUpdate(
+    { _id: req.params.id },
+    { $set: req.body },
+    { new: true, runValidators: true }
+  );
 
   res.status(201).json({
     status: "success",

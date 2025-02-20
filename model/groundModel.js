@@ -4,7 +4,7 @@ const slotSchema = new mongoose.Schema({
   date: { type: Date, required: true }, // Date of the slot
   startTime: { type: Date, required: true }, // Start time of the slot
   endTime: { type: Date, required: true }, // End time of the slot
-  price: Number,
+  price: { type: Number, default: 0 },
   status: {
     type: String,
     enum: ["available", "booked"],
