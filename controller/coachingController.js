@@ -24,7 +24,7 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadUserPhoto = upload.array("photo", 5);
+exports.uploadUserPhoto = upload.array("photos", 5);
 
 exports.resizeCoachingImages = catchAsync(async (req, res, next) => {
   if (!req.files || req.files.length === 0) return next();
@@ -74,14 +74,22 @@ exports.updateCoaching = catchAsync(async (req, res, next) => {
     return next(new AppError("No booking found for this id", 404));
   }
 
-  // 2. Delete old images if new files are provided
-  if (req.files && req.files.length > 0 && coaching.photos.length > 0) {
-    coaching.photos.forEach((filename) => {
-      deleteImage("coaching", filename); // Delete old images
-    });
+  // Get images to keep
+  let imagesToKeep = req.body.imagesToKeep || [];
+  // Delete images NOT in the keep list filter function return new array
+  coaching.photos = coaching.photos.filter((filename) => {
+    if (!imagesToKeep.includes(filename)) {
+      deleteImage("coaching", filename); // Delete image file
+      return false;
+    }
+    return true;
+  });
+  req.body.photos = coaching.photos;
 
+  // 2. Delete old images if new files are provided
+  if (req.files && req.files.length > 0) {
     //1)images
-    req.body.photos = [];
+    let newImages = [];
 
     await Promise.all(
       req.files.map(async (file, i) => {
@@ -93,9 +101,10 @@ exports.updateCoaching = catchAsync(async (req, res, next) => {
           .jpeg({ quality: 90 })
           .toFile(`public/img/coaching/${filename}`);
 
-        req.body.photos.push(filename);
+        newImages.push(filename);
       })
     );
+    req.body.photos = [...coaching.photos, ...newImages]; // Keep old & new images
   }
 
   const doc = await Coaching.findByIdAndUpdate(req.params.id, req.body, {
@@ -125,6 +134,23 @@ exports.deleteCoaching = catchAsync(async (req, res, next) => {
 
   res.status(204).json({
     status: "success",
-    data: null,
+    data: {},
+  });
+});
+
+exports.getAdminCoaching = catchAsync(async (req, res) => {
+  const coaching = await Coaching.find({ addedBy: req.user.id });
+
+  if (!coaching) {
+    return res.status(400).json({
+      success: false,
+      message: "No coaching found for this admin",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    result: coaching.length,
+    data: coaching,
   });
 });

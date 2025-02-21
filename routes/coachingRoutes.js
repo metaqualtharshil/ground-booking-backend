@@ -16,6 +16,9 @@ router
     coachingController.addCoaching
   );
 
+
+router.get("/adminCoaching",authController.protect,coachingController.getAdminCoaching);
+
 router
   .route("/:id")
   .get(authController.protect, coachingController.getCoaching)
