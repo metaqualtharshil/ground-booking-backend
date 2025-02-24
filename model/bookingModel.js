@@ -100,6 +100,7 @@ const bookingSchema = mongoose.Schema(
       type: Boolean,
       default: false, // If the user has marked this booking as a favorite
     },
+    acceptedAt: { type: Date, default: null }
   },
   {
     timestamps: true,

@@ -71,6 +71,11 @@ const groundSchema = mongoose.Schema(
       type: Number,
       default: 1,
     },
+    acceptanceType: {
+      type: String,
+      enum: ["auto", "manual"],
+      default: "manual",
+    },
     photos: { type: [String], default: [] },
     rating: {
       type: [

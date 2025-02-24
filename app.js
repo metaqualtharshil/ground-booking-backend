@@ -1,6 +1,5 @@
 const express = require("express");
 const AppError = require("./utils/appError");
-const logToFile = require("./utils/cronJobTxt");
 const Booking = require("./model/bookingModel");
 const userRoutes = require("./routes/userRoutes");
 const groundRoutes = require("./routes/groundRoutes");
@@ -10,16 +9,15 @@ const offerRoutes = require("./routes/offerRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const coachingRoutes = require("./routes/coachingRoutes");
 const app = express();
-const bodyParser = require("body-parser");
 const gloableErrorHandler = require("./controller/errorController");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit"); // brute atteck saviour
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
-const cron = require("node-cron");
 const multer = require("multer");
 const morgan = require("morgan");
+const scheduleJobs = require('./utils/cronjob/cronjob'); // Import the cron job file
 
 const upload = multer();
 // app.use(upload.none());
@@ -66,30 +64,6 @@ app.all("*", (req, res, next) => {
 
 app.use(gloableErrorHandler);
 
-cron.schedule("*/5 * * * *", async () => {
-  // every 5 min */5 * * * *  , * * * * *
-  const currentDate = new Date(); // Get current date and time
-  // console.log(Date(currentDate.toISOString())); // Output will be in ISO format
-  currentDate.setHours(currentDate.getHours() + 5); // Add 5 hours
-  currentDate.setMinutes(currentDate.getMinutes() + 30); // Add 30 minutes
-  console.log(currentDate.toISOString()); // Output will be in ISO format
-  try {
-    // Update bookings whose slot.endTime has passed
-    const result = await Booking.updateMany(
-      {
-        status: "Confirmed",
-        "slot.endTime": { $lt: currentDate.toISOString() },
-      },
-      {
-        $set: { status: "Completed" },
-      }
-    );
-
-    console.log(`Status updated for ${result.modifiedCount} bookings`);
-    // logToFile(`Status updated for ${result.modifiedCount} bookings`);
-  } catch (error) {
-    console.log(error);
-  }
-});
+scheduleJobs();
 
 module.exports = app;

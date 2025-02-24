@@ -4,15 +4,16 @@ const Ground = require("../model/groundModel");
 const catchAsync = require("../utils/catchAsync");
 
 exports.addBooking = catchAsync(async (req, res, next) => {
-  //   const groundSlot = await Ground.find({
-  //     "availableSport.availableSlots._id": req.body.slot.slotId,
-  //   });
+  const ground = await Ground.findOne({ _id: req.body.groundId });
+
   Ground.updateOne(
     { "availableSport.groundName.availableSlots._id": req.body.slot.slotId },
     {
       $set: {
-        "availableSport.$[].groundName.$[].availableSlots.$[elem].status":"booked",
-        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":req.body.userId,
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
+          "booked",
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":
+          req.body.userId,
       },
     },
     {
@@ -21,11 +22,58 @@ exports.addBooking = catchAsync(async (req, res, next) => {
       ],
     }
   ).then((result) => {});
+
+  if (!ground) {
+    return res.status(404).json({ message: "Ground not found" });
+  }
+
+  // Determine acceptance type
+  const acceptanceType = ground.acceptanceType;
+  const status = acceptanceType === "auto" ? "Confirmed" : "Pending";
+  const acceptedAt = acceptanceType === "auto" ? new Date() : null;
+
+  req.body.status = status;
+  req.body.acceptedAt = acceptedAt;
+
   const newDoc = await Booking.create(req.body);
   res.status(201).json({
     status: "success",
     data: newDoc,
   });
+});
+
+exports.adminAcceptBooking = catchAsync(async (req, res, next) => {
+  const bookingId = req.params.bookingId;
+  const booking = await Booking.findById(bookingId).populate("groundId");
+
+  if (!booking) {
+    return res.status(400).json({ message: "Booking not found" });
+  }
+
+  if (booking.groundId.acceptanceType === "auto") {
+    return res.status(400).json({ message: "This booking is auto-accepted." });
+  }
+
+  booking.status = "Confirmed";
+  booking.acceptedAt = new Date();
+  await booking.save();
+  res.status(200).json({ message: "Booking accepted successfully", booking });
+});
+
+exports.adminRejectBooking = catchAsync(async (req, res, next) => {
+  const { bookingId } = req.params;
+  const booking = await Booking.findById(bookingId).populate("groundId");
+
+  if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+  if (booking.groundId.acceptanceType === "auto") {
+    return res.status(400).json({ message: "This booking is auto-accepted." });
+  }
+
+  booking.status = "Cancelled";
+  await booking.save();
+
+  res.status(200).json({ message: "Booking rejected successfully", booking });
 });
 
 exports.getUserBooking = catchAsync(async (req, res, next) => {
@@ -143,6 +191,37 @@ exports.getBooking = factory.getAll(Booking);
 
 exports.getOneBooking = factory.getOne(Booking);
 
-exports.updateBooking = factory.updateOne(Booking);
+exports.updateBooking = catchAsync(async (req, res) => {
+  if (req.body.status === "Cancelled") {
+    const groundUpdate = await Ground.updateOne(
+      { "availableSport.groundName.availableSlots._id": req.body.slot.slotId },
+      {
+        $set: { 
+          "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
+            "available",
+          "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":
+            null,
+        },
+      },
+      {
+        arrayFilters: [
+          { "elem._id": req.body.slot.slotId }, // Ensure that the correct slot is being updated based on the slotId
+        ],
+      }
+    );
+  }
+
+  const doc = await Booking.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: false, //if false then model validator not use if we true then use
+  });
+  if (!doc) {
+    return next(new AppError("No found for this id", 404));
+  }
+  res.status(201).json({
+    status: "success",
+    data: doc,
+  });
+});
 
 exports.deleteBooking = factory.deleteOne(Booking);

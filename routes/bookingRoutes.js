@@ -23,4 +23,8 @@ bookingAdmin.route("/admin-upcoming-booking").get(authController.protect,booking
 
 bookingAdmin.route("/admin-history-booking").get(authController.protect,bookingController.getHistoryBookingForAdmin);
 
+bookingAdmin.get("/:bookingId/accept",authController.protect,bookingController.adminAcceptBooking);
+
+bookingAdmin.get("/:bookingId/reject",authController.protect,bookingController.adminRejectBooking);
+
 module.exports = {booking,bookingAdmin};
