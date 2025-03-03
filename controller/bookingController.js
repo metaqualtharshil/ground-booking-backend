@@ -178,7 +178,8 @@ exports.historyBookingList = catchAsync(async (req, res) => {
     // date: { $lt: new Date() }
   })
     .skip(skip)
-    .limit(parseInt(limit));
+    .limit(parseInt(limit))
+    .populate("groundId", "name features location photos");
 
   res.status(200).json({
     status: "success",
@@ -196,7 +197,7 @@ exports.updateBooking = catchAsync(async (req, res) => {
     const groundUpdate = await Ground.updateOne(
       { "availableSport.groundName.availableSlots._id": req.body.slot.slotId },
       {
-        $set: { 
+        $set: {
           "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
             "available",
           "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":

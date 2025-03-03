@@ -80,10 +80,11 @@ const groundSchema = mongoose.Schema(
     rating: {
       type: [
         {
-          stars: { type: Number, default: 4, min: 1, max: 5 }, // e.g., 1 to 5 stars
-          review: { type: String, default: "Great" }, // Optional text review from the user
-          ratedAt: { type: Date, default: Date.now }, // When the rating was submitted
-        },
+          stars: { type: Number, default: 4, min: 1, max: 5 }, 
+          review: { type: String, default: "Great" },
+          reviewBy:{type: mongoose.Schema.Types.ObjectId , ref:'User'},
+          ratedAt: { type: Date, default: Date.now },
+        }
       ],
       default: [],
     },

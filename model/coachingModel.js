@@ -30,7 +30,7 @@ const coachingSchema = mongoose.Schema(
     },
     photos: { type: [String], default: [] },
     sport: {
-      type: String,
+      type:  [String],
       required: [true, "Sport type is required."],
       // enum: ["Cricket", "Football", "Tennis", "Badminton", "Other"],
     },
