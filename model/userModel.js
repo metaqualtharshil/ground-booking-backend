@@ -36,9 +36,7 @@ const userSchema = mongoose.Schema(
     },
     phone: {
       type: String,
-      unique:true,
-      minlength: 13,
-      maxlength: 13,
+      unique:true
     },
     otp:{
       type:Number
@@ -71,8 +69,7 @@ const userSchema = mongoose.Schema(
     fcmToken:String,
     referralCode: {
       type: String, // Unique code for each user
-      unique: false,
-      default:"gfgsd"
+      default:"gzaqde"
     },
     referredBy: {
       type: String, // Referral code used by this user

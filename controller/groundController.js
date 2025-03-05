@@ -64,7 +64,7 @@ exports.resizeGroundImages = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.getGrounds = factory.getAll(Ground);
+exports.getGrounds = factory.getAll(Ground,[{path: "rating.reviewBy" ,select:"name -_id"}]);
 
 exports.getGround = factory.getOne(Ground);
 

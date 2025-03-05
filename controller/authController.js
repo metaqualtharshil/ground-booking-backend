@@ -14,8 +14,25 @@ const signToken = (id) => {
   });
 };
 
+async function generateUniqueReferralCode() {
+  let code;
+  let isUnique = false;
+
+  while (!isUnique) {
+    code = Math.random().toString(36).substring(2, 8).toUpperCase(); // Generate a random 8-char code
+    const existingUser = await User.findOne({ referralCode: code });
+    if (!existingUser) {
+      isUnique = true;
+    }
+  }
+
+  return code;
+}
+
 exports.signUp = catchAsync(async (req, res) => {
   console.log(req.body);
+
+  const referralCode = await generateUniqueReferralCode();
 
   const newUser = await User.create({
     name: req.body.name,
@@ -24,6 +41,10 @@ exports.signUp = catchAsync(async (req, res) => {
     phone: req.body.phone,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    referralCode: referralCode,
+    city: req.body.city,
+    countryCode: req.body.countryCode,
+    referredBy: req.body.referredBy,
   });
 
   const token = signToken(newUser._id);
@@ -75,7 +96,9 @@ exports.verifyOtp = catchAsync(async (req, res) => {
   }
   // Check OTP validity
   if (user.otp !== otp || new Date() > new Date(user.otpExpiry)) {
-    return res.status(200).json({ status: "false", message: "Invalid or expired OTP" });
+    return res
+      .status(200)
+      .json({ status: "false", message: "Invalid or expired OTP" });
   }
 
   user.isVerified = true;
@@ -85,8 +108,8 @@ exports.verifyOtp = catchAsync(async (req, res) => {
 
   res.status(200).json({
     status: "success",
-    message: "OTP verified successfully" 
-    });
+    message: "OTP verified successfully",
+  });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
