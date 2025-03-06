@@ -14,7 +14,7 @@ const bookingSchema = mongoose.Schema(
     },
     date: {
       type: Date,
-      required: true,
+      // required: true,
       default: Date.now(),
       unique: false,
     },
@@ -30,11 +30,15 @@ const bookingSchema = mongoose.Schema(
       endTime: {
         type: Date,
         required: true,
-      },  
+      },
+      slotTime: {
+        type: String,
+        required: true,
+      },
     },
     totalDuration: {
       type: Number, // Duration in minutes
-      required: true,
+      // required: true,
       min: 1, // Duration must be positive
       validate: {
         validator: function (value) {
@@ -63,8 +67,8 @@ const bookingSchema = mongoose.Schema(
       enum: ["Pending", "Confirmed", "Completed", "Cancelled"],
       default: "Pending",
     },
-    cancellationReason:{
-      type:String
+    cancellationReason: {
+      type: String,
     },
     totalAmount: {
       type: Number,
@@ -100,7 +104,7 @@ const bookingSchema = mongoose.Schema(
       type: Boolean,
       default: false, // If the user has marked this booking as a favorite
     },
-    acceptedAt: { type: Date, default: null }
+    acceptedAt: { type: Date, default: null },
   },
   {
     timestamps: true,

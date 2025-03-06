@@ -13,7 +13,7 @@ exports.addBooking = catchAsync(async (req, res, next) => {
         "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
           "booked",
         "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":
-          req.body.userId,
+          req.user.id,
       },
     },
     {
@@ -34,6 +34,7 @@ exports.addBooking = catchAsync(async (req, res, next) => {
 
   req.body.status = status;
   req.body.acceptedAt = acceptedAt;
+  req.body.userId =  req.user.id;
 
   const newDoc = await Booking.create(req.body);
   res.status(201).json({
