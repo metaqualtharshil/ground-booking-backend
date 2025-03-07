@@ -8,6 +8,10 @@ router
   .route("/sport")
   .get(authController.protect, groundController.getAllSportsName);
 
+router.post("/:groundId/reviews",authController.protect,groundController.addReview);
+
+router.post("/:groundId/reviews/:reviewId",authController.protect,groundController.updateReview);
+
 router.get("/getAllGroundForAdmin",authController.protect,groundController.getAdminGrounds);
 
 router

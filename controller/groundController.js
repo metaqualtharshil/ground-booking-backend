@@ -64,7 +64,9 @@ exports.resizeGroundImages = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.getGrounds = factory.getAll(Ground,[{path: "rating.reviewBy" ,select:"name -_id"}]);
+exports.getGrounds = factory.getAll(Ground, [
+  { path: "rating.reviewBy", select: "name -_id" },
+]);
 
 exports.getGround = factory.getOne(Ground);
 
@@ -149,6 +151,58 @@ exports.deleteGround = catchAsync(async (req, res) => {
   res.status(204).json({
     status: "success",
     data: null,
+  });
+});
+
+exports.addReview = catchAsync(async (req, res) => {
+  const groundId = req.params.groundId;
+  const newRating = {
+    stars: req.body.stars,
+    review: req.body.review,
+    reviewBy: req.user.id,
+    ratedAt: new Date(),
+  };
+
+  const addedReview = await Ground.findByIdAndUpdate(
+    groundId,
+    { $push: { rating: newRating } },
+    { new: true , runValidators: true}
+  );
+
+  if (!addedReview) {
+    return res.status(404).json({ message: "Venue not found" });
+  }
+
+  res.status(201).json({
+    status: "success",
+    message: "Review added successfully",
+    data: addedReview,
+  });
+});
+
+exports.updateReview = catchAsync(async (req, res) => {
+  const { groundId, reviewId } = req.params;
+
+  const updatedVenue = await Ground.findOneAndUpdate(
+    { _id: groundId, "rating._id": reviewId },
+    {
+      $set: {
+        "rating.$.stars": req.body.stars,
+        "rating.$.review": req.body.review,
+        "rating.$.ratedAt": new Date(),
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedVenue) {
+    return res.status(404).json({ message: "Venue not found" });
+  }
+
+  res.status(201).json({
+    status: "success",
+    message: "Review updated successfully",
+    data: updatedVenue,
   });
 });
 
