@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const slotSchema = new mongoose.Schema({
   date: { type: Date, required: true }, // Date of the slot
   startTime: { type: Date, required: true }, // Start time of the slot
-  endTime: { type: Date, required: true }, // End time of the slot
+  endTime: { type: Date, required: true, index: { expires: 60 } }, // End time of the slot
   price: { type: Number, default: 0 },
   status: {
     type: String,
@@ -71,9 +71,13 @@ const groundSchema = mongoose.Schema(
         name: String, // cricket, football
         groundName: [
           {
-            name: String,
+            name: String, // turf 1
             availableSlots: [slotSchema],
             priceChart: [priceChart],
+            groundDetails: {
+              height: { type: Number },
+              width: { type: Number },
+            },
           },
         ], // turf 1 , turf 2
       },
@@ -91,11 +95,11 @@ const groundSchema = mongoose.Schema(
     rating: {
       type: [
         {
-          stars: { type: Number,min: 1, max: 5 }, 
+          stars: { type: Number, min: 1, max: 5 },
           review: { type: String },
-          reviewBy:{type: mongoose.Schema.Types.ObjectId , ref:'User'},
+          reviewBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
           ratedAt: { type: Date },
-        }
+        },
       ],
       default: function () {
         return [];

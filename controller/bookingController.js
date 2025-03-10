@@ -64,8 +64,26 @@ exports.adminAcceptBooking = catchAsync(async (req, res, next) => {
 exports.adminRejectBooking = catchAsync(async (req, res, next) => {
   const { bookingId } = req.params;
   const booking = await Booking.findById(bookingId);
-
-  if (!booking) return res.status(404).json({status : "fail", message: "Booking not found" });
+  const groundUpdate = await Ground.updateOne(
+    { "availableSport.groundName.availableSlots._id": req.body.slotId },
+    {
+      $set: {
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].status":
+          "available",
+        "availableSport.$[].groundName.$[].availableSlots.$[elem].bookedBy":
+          null,
+      },
+    },
+    {
+      arrayFilters: [
+        { "elem._id": req.body.slotId }, // Ensure that the correct slot is being updated based on the slotId
+      ],
+    }
+  );
+  if (!booking)
+    return res
+      .status(404)
+      .json({ status: "fail", message: "Booking not found" });
 
   // if (booking.groundId.acceptanceType === "auto") {
   //   return res.status(400).json({ message: "This booking is auto-accepted." });
@@ -76,10 +94,10 @@ exports.adminRejectBooking = catchAsync(async (req, res, next) => {
   await booking.save();
 
   res.status(200).json({
-     status : "success",
-     message: "Booking rejected successfully", 
-     booking 
-    });
+    status: "success",
+    message: "Booking rejected successfully",
+    booking,
+  });
 });
 
 exports.getUserBooking = catchAsync(async (req, res, next) => {
@@ -186,7 +204,8 @@ exports.historyBookingList = catchAsync(async (req, res) => {
   })
     .skip(skip)
     .limit(parseInt(limit))
-    .populate("groundId", "name features location photos");
+    .populate("groundId", "name features location photos")
+    .sort({ updatedAt: -1 });
 
   res.status(200).json({
     status: "success",

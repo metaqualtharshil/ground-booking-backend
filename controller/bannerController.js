@@ -25,11 +25,10 @@ const upload = multer({
 exports.uploadBannerPhoto = upload.single("photo");
 
 exports.resizeBannerPhoto = catchAsync(async (req, res, next) => {
-    
   if (!req.file) return next();
 
-  const bannerInfo = await Banner.findById(req.params.id);
-  if (bannerInfo.photo !== "") deleteImage("banner", bannerInfo.photo);
+  // const bannerInfo = await Banner.findById(req.params.id);
+  // if (bannerInfo.photo !== "") deleteImage("banner", bannerInfo.photo);
 
   req.file.filename = `banner-${req.user.id}-${Date.now()}.jpeg`;
 
@@ -39,7 +38,7 @@ exports.resizeBannerPhoto = catchAsync(async (req, res, next) => {
     .jpeg({ quality: 90 })
     .toFile(`public/img/banner/${req.file.filename}`);
 
-    req.body.photo = req.file.filename;
+  req.body.photo = req.file.filename;
   next();
 });
 

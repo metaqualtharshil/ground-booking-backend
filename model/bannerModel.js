@@ -12,6 +12,9 @@ const bannerSchema = mongoose.Schema(
     priority: {
       type: Number,
     },
+    url: {
+      type: String,
+    },
   },
   {
     timestamps: true,
