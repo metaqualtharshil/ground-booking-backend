@@ -189,6 +189,7 @@ exports.updateReview = catchAsync(async (req, res) => {
       $set: {
         "rating.$.stars": req.body.stars,
         "rating.$.review": req.body.review,
+        "rating.$.reviewBy": req.user.id,
         "rating.$.ratedAt": new Date(),
       },
     },

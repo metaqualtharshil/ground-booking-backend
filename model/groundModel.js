@@ -17,19 +17,30 @@ const slotSchema = new mongoose.Schema({
   },
 });
 
+// const priceChart = new mongoose.Schema({
+//   heading: {
+//     type: String,
+//     required: [true, "price Chart is required."],
+//   },
+//   slot: {
+//     type: [String],
+//     required: [true, "slot is required."],
+//   },
+//   price: {
+//     type: Number,
+//     required: [true, "price is required."],
+//   },
+// });
+
 const priceChart = new mongoose.Schema({
-  heading: {
+  category: {
     type: String,
-    required: [true, "price Chart is required."],
+    required: true,
+    enum: ["morning", "afternoon", "evening", "night"],
   },
-  slot: {
-    type: [String],
-    required: [true, "slot is required."],
-  },
-  price: {
-    type: Number,
-    required: [true, "price is required."],
-  },
+  startTime: { type: String, required: true },
+  endTime: { type: String, required: true },
+  price: { type: Number, required: true },
 });
 
 const groundSchema = mongoose.Schema(

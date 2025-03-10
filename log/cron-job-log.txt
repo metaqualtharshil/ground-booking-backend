@@ -1,3 +1,4 @@
 [2025-02-24T08:10:01.127Z] 1 bookings auto-rejected.
 [2025-03-06T11:40:00.271Z] 1 bookings auto-rejected.
 [2025-03-06T11:50:00.501Z] 1 bookings auto-rejected.
+[2025-03-08T13:10:00.386Z] 1 bookings auto-rejected.
