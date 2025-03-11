@@ -81,7 +81,7 @@ exports.generateOtp = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   // Send OTP via SMS or Email (Using Twilio or Nodemailer)
-  // sendOTP(phone, otp);
+  sendOTP(phone, otp);
   console.log(`OTP for ${phone || email}: ${otp}`); // Debugging
 
   res.status(200).json({ message: "OTP sent successfully" });

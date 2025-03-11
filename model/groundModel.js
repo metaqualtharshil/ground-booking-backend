@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const slotSchema = new mongoose.Schema({
   date: { type: Date, required: true }, // Date of the slot
   startTime: { type: Date, required: true }, // Start time of the slot
-  endTime: { type: Date, required: true, index: { expires: 60 } }, // End time of the slot
+  endTime: { type: Date, required: true, index: { expires: "10d" } }, // End time of the slot
   price: { type: Number, default: 0 },
   status: {
     type: String,

@@ -8,6 +8,8 @@ const router = express.Router();
 router.patch("/updateMe",authController.protect,userController.uploadUserPhoto,
     userController.resizeUserPhoto,userController.updateMe);
 
+router.get("/me",authController.protect,userController.getMe);
+
 router.post('/signup',authController.signUp);
 router.post('/login',authController.login);
 router.post('/updatePassword',authController.protect,authController.updatePassword);

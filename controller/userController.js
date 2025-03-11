@@ -88,4 +88,20 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getMe = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select(
+    "-password -isPhoneVerify -otp -otpExpiry -role -passwordResetToken -passwordChangedAt -__v -isVerified"
+  );
+  if (!user) {
+    return next(new AppError("No user found with that id", 404));
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
+
 exports.addFavorite = catchAsync(async (req, res, next) => {});
