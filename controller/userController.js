@@ -20,7 +20,7 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadUserPhoto = upload.single("photo");
+exports.uploadUserPhoto = upload.single("photos");
 
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
@@ -63,6 +63,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     req.body,
     "name",
     "phone",
+    "email",
     "country",
     "city",
     "interestedSport",
@@ -73,7 +74,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     filterBody.photo = req.file.filename;
   }
 
-  filterBody.interestedSport = JSON.parse(req.body.interestedSport);
+  if(req.body.interestedSport) {
+    filterBody.interestedSport = JSON.parse(req.body.interestedSport);
+  }
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filterBody, {
     new: true,
